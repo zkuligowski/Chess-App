@@ -1,4 +1,5 @@
-﻿using Emgu.CV;
+﻿using Chess_App;
+using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 
@@ -41,7 +42,10 @@ namespace WinFormsApp1
         List<string> chess_notation_list = new List<string>();
 
         //Lista zawierajaca notacje szachowa
-        List<IChessBoard> chessboardnotation = new List<IChessBoard>();
+        List<ChessBoard> chessboardnotation = new List<ChessBoard>();
+
+        // Lista zawierająca figury
+        List<ChessPiece> chessPiece = new List<ChessPiece>();
         
 
 
@@ -206,19 +210,19 @@ namespace WinFormsApp1
 
         private void pelna_segmentacja()
         {
-            int xa, ya, rozmiar_obiektu;
-            double F = 0;
+            int xa, ya;
+            int F = 0;
             int licznik_pom = 0;
             // pobranie progu dla dużych obiektów
-
-            rozmiar_obiektu = 300
-                ;
+                
             Image<Bgr, byte> obiektczarny = new Image<Bgr, byte>(obraz1.Size);
             Image<Bgr, byte> czarnepole = new Image<Bgr, byte>(obraz1.Size);
             Image<Bgr, byte> obiektbialy = new Image<Bgr, byte>(obraz1.Size);
             Image<Bgr, byte> bialepole = new Image<Bgr, byte>(obraz1.Size);
 
-            ChessBoard board = new ChessBoard("sss",2);
+            
+
+            ChessPiece piece = new ChessPiece(2, true);
 
             MCvScalar kolor = new MCvScalar(10, 0, 0);
 
@@ -278,6 +282,9 @@ namespace WinFormsApp1
                             else
                                 listBox_Black_Chess_Notation.Items.Add("Black" + licznik_duzych.ToString() + "    (" + licznik.ToString() + ")   F =" + F.ToString());
 
+                            piece.area = F;
+                            piece.isWhite = false;
+                            chessPiece.Add(piece);
                             obiekty_czarne.Add(obiektczarny);
                         }
 
@@ -321,6 +328,9 @@ namespace WinFormsApp1
                             obiekty_biale.Add(obiektbialy);
                         }
 
+                        piece.area = F;
+                        piece.isWhite = true;
+                        chessPiece.Add(piece);
                         obraz2 = obraz2.Add(obiektbialy);
                         pictureBox2.Image = obraz2.AsBitmap();
                         licznik++;
@@ -329,51 +339,61 @@ namespace WinFormsApp1
             }
                     
             for (xa = 1; xa < obraz1.Width; xa = xa + 50)
-                    {
-                        for (ya = 1; ya < obraz1.Height; ya++)
-                        {
+            {
+                for (ya = 1; ya < obraz1.Height; ya++)
+                {
                             // SEGMENTACJA BIAŁE POLA
-                            if (tempObraz3.Data[ya, xa, 0] > 200 && tempObraz3.Data[ya, xa, 0] < 220 && tempObraz3.Data[ya, xa, 1] > 230 && tempObraz3.Data[ya, xa, 1] < 245 && tempObraz3.Data[ya, xa, 2] > 230 && tempObraz3.Data[ya, xa, 2] < 245)
+                    if (tempObraz3.Data[ya, xa, 0] > 200 && tempObraz3.Data[ya, xa, 0] < 220 && tempObraz3.Data[ya, xa, 1] > 230 && tempObraz3.Data[ya, xa, 1] < 245 && tempObraz3.Data[ya, xa, 2] > 230 && tempObraz3.Data[ya, xa, 2] < 245)
+                    {
+                        bialepole = segmentacja_1_obiektu(new Point(xa, ya));
+                        CvInvoke.Subtract(tempObraz3, bialepole, tempObraz3);
+
+                        byte[,,] temp = bialepole.Data;
+                        F = calculate_area(temp);
+
+                          if (F > 1200)
+                          {
+                            ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, true, true);
+                            if (F > 2200) board.is_figure = false;
+                            else
                             {
-                                bialepole = segmentacja_1_obiektu(new Point(xa, ya));
-                                CvInvoke.Subtract(tempObraz3, bialepole, tempObraz3);
+                                board.is_figure = true;
 
-                                byte[,,] temp = bialepole.Data;
-                                F = calculate_area(temp);
+                            }
+                            chessboardnotation.Add(board);
+                            licznik_pom++;
 
-                                if (F > 500)
-                                {
-                                    board.checkerboard_field_name = chess_notation_list.ElementAt(licznik_pom);
-                                    board.checkerboard_field_area = (int)F;
-                                    chessboardnotation.Add(board);
-                                    licznik_pom++;
-
-                                    listBox1.Items.Add(board.checkerboard_field_name + "   F =" + F.ToString());
-                                    checkerboard.Add(bialepole);
-                                }
+                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString());
+                            checkerboard.Add(bialepole);
+                          }
 
                                 obraz2 = obraz2.Add(bialepole);
                                 pictureBox2.Image = obraz2.AsBitmap();
                                 licznik++;
-                            }
+                    }
 
                             // SEGMENTACJA CZARNE POLA
-                            else if (tempObraz4.Data[ya, xa, 0] == 86 && (tempObraz4.Data[ya, xa, 1] == 150 || tempObraz4.Data[ya, xa, 1] == 0) && tempObraz4.Data[ya, xa, 2] == 118)
-                            {
+                    else if (tempObraz4.Data[ya, xa, 0] == 86 && (tempObraz4.Data[ya, xa, 1] == 150 || tempObraz4.Data[ya, xa, 1] == 0) && tempObraz4.Data[ya, xa, 2] == 118)
+                    {
                                 czarnepole = segmentacja_1_obiektu(new Point(xa, ya));
                                 CvInvoke.Subtract(tempObraz4, czarnepole, tempObraz4);
 
                                 byte[,,] temp = czarnepole.Data;
                                 F = calculate_area(temp);
 
-                                if (F > 500)
+                                if (F > 1200)
                                 {
-                                    board.checkerboard_field_name = chess_notation_list.ElementAt(licznik_pom);
-                                    board.checkerboard_field_area = (int)F;
+                                    ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, true, false);
+                                    if (F > 2200) board.is_figure = false;
+                                    else
+                                    {
+                                        board.is_figure = true;
+
+                                    }
                                     chessboardnotation.Add(board);
                                     licznik_pom++;
 
-                                    listBox1.Items.Add(board.checkerboard_field_name + "   F =" + F.ToString());
+                                    listBox1.Items.Add(board.field_name + "   F =" + F.ToString());
                                     checkerboard.Add(czarnepole);
 
                                 }
@@ -385,7 +405,7 @@ namespace WinFormsApp1
                         
                     
                 }
-                if (licznik > 1000) break;  // max. wszystkich wykrytych obiektów = 1000 - wyjscie z pętli for
+                if (licznik > 200) break;  // max. wszystkich wykrytych obiektów = 200 - wyjscie z pętli for
             }
         }
 
@@ -432,9 +452,9 @@ namespace WinFormsApp1
             obraz_binarny = obraz1.Clone();
         }
 
-        private double calculate_area(byte[,,] temp)
+        private int calculate_area(byte[,,] temp)
         {
-            double F = 0;
+            int F = 0;
             
             for (int X = 0; X < obraz1.Width; X++)
             {
@@ -488,9 +508,6 @@ namespace WinFormsApp1
 
             //zmiana koloru przy wywołaniu - lub opcja 2 - stały kolor
 
-            //kolor.V0++;
-            // if (kolor.V0 == 255) kolor.V0 = 10;  // ograniczenie koloru
-
              kolor.V0 = 120;
              kolor.V1 = 150;
              kolor.V2 = 100;
@@ -515,27 +532,47 @@ namespace WinFormsApp1
             return tempObraz;
             
         }
-
         #endregion
 
 
     }
 
-    interface IChessBoard
-    {
+   // interface IChessBoard
+   // {
 
-    }
-
-    class ChessBoard : IChessBoard
+   // }
+   /*
+    class ChessBoard 
     {
-        public ChessBoard(string s, int x)
+        public ChessBoard(string field_name, int field_area, bool is_figure, bool is_white)
         {
-            checkerboard_field_name = s;
-            checkerboard_field_area = x;
+            this.field_name = field_name;
+            this.field_area = field_area;
+            this.is_figure = is_figure;
+            this.is_white = is_white;
         }
 
-        public int checkerboard_field_area { get; set; }
-        public string checkerboard_field_name { get; set; }
+        public int field_area { get; set; }
+        public bool is_figure { get;  set; }
+        public string field_name { get; set; }
+        public bool is_white { get; set; }
     }
+    */
+   // interface IChessPiece
+   // {
 
+   // }
+
+    class ChessPiece 
+    {
+        public ChessPiece(int a, bool b)
+        {
+            area = a;
+            isWhite = b;
+        }
+
+        public int area { get; set; }
+        public bool isWhite { get; set; }
+    }
+    
 }
