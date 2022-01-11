@@ -537,42 +537,5 @@ namespace WinFormsApp1
 
     }
 
-   // interface IChessBoard
-   // {
-
-   // }
-   /*
-    class ChessBoard 
-    {
-        public ChessBoard(string field_name, int field_area, bool is_figure, bool is_white)
-        {
-            this.field_name = field_name;
-            this.field_area = field_area;
-            this.is_figure = is_figure;
-            this.is_white = is_white;
-        }
-
-        public int field_area { get; set; }
-        public bool is_figure { get;  set; }
-        public string field_name { get; set; }
-        public bool is_white { get; set; }
-    }
-    */
-   // interface IChessPiece
-   // {
-
-   // }
-
-    class ChessPiece 
-    {
-        public ChessPiece(int a, bool b)
-        {
-            area = a;
-            isWhite = b;
-        }
-
-        public int area { get; set; }
-        public bool isWhite { get; set; }
-    }
     
 }
