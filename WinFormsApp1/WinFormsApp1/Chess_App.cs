@@ -24,7 +24,6 @@ namespace WinFormsApp1
 
         private Mat obrazMAT = new Mat();
 
-
         // liczniki segmentacji
 
         int licznik = 1;
@@ -46,28 +45,21 @@ namespace WinFormsApp1
 
         // Lista zawierająca figury
         List<ChessPiece> chessPiece = new List<ChessPiece>();
-        
-
-
-        //Lista ognisk do segmentacji - pomocniczo
-        List<Point> ogniska = new List<Point>();
 
         //Początkowy kolor w procedurze segmentacji
         MCvScalar kolor = new MCvScalar(0, 0, 0);
-
-        //Tablica sygnatury, rozmiar tablicy jest zmieniany przez procedurę
-        double[] sygnaturaTab = new double[360];
-
-        //Środek ciężkości obiektu
-        Point srodek = new Point(0, 0);
-
 
 
         public Chess_App()
         {
             InitializeComponent();
-        }
+            //inicjalizacja obrazów
+            obraz1 = new Image<Bgr, byte>(pictureBox1.Size);
+            obraz2 = obraz1.Clone();
+            obraz3 = obraz1.Clone();
 
+            obraz_binarny = obraz1.Clone();
+        }
 
 
         private void button_From_File_Click(object sender, EventArgs e)
@@ -107,7 +99,8 @@ namespace WinFormsApp1
             int index = listBox_White_Chess_Notation.SelectedIndex;
 
             //obraz_binarny = pola_biale[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
-            obraz_binarny = obiekty_biale[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
+            obraz_binarny = obiekty_biale[index];
+            //.ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
             //obraz_binarny.CopyTo(obraz3);
             pictureBox3.Image = obraz_binarny.AsBitmap();
         }
@@ -120,7 +113,8 @@ namespace WinFormsApp1
 
             int index = listBox_Black_Chess_Notation.SelectedIndex;
 
-            obraz_binarny = obiekty_czarne[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
+            obraz_binarny = obiekty_czarne[index];
+            //.ThresholdBinary(new Bgr(0, 150,0), new Bgr(255, 255, 255));
             obraz_binarny.CopyTo(obraz3);
             pictureBox3.Image = obraz3.AsBitmap();
         }
@@ -148,16 +142,13 @@ namespace WinFormsApp1
 
             Image<Bgr, byte> obiekt = new Image<Bgr, byte>(obraz1.Size);
             obraz1.CopyTo(obiekt);
-            int pole = 1;            
+            int pole = 1;
             obiekt = segmentacja_1_obiektu(new Point(M.X, M.Y));
             Image<Gray, byte> obrazSzary = obiekt.Convert<Gray, byte>();
             //pictureBox1.Image = obraz1.AsBitmap();
             obiekty_biale.Add(obiekt);
             CvInvoke.Subtract(obraz1, obiekt, obraz1);
             
-
-
-
             obraz2 = obraz2.Add(obiekt);
            // obiekt = obiekt.ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
 
@@ -226,19 +217,10 @@ namespace WinFormsApp1
 
             MCvScalar kolor = new MCvScalar(10, 0, 0);
 
-            Image<Bgr, byte> tempObraz1 = new Image<Bgr, byte>(obraz1.Size);
-            obraz1.CopyTo(tempObraz1);
 
             //Stworzenie tymczasowej kopii obrazu zrodlowego
             Image<Bgr, byte> tempObraz2 = new Image<Bgr, byte>(obraz1.Size);
             obraz1.CopyTo(tempObraz2);
-
-            Image<Bgr, byte> tempObraz3 = new Image<Bgr, byte>(obraz1.Size);
-            obraz1.CopyTo(tempObraz3);
-
-            Image<Bgr, byte> tempObraz4 = new Image<Bgr, byte>(obraz1.Size);
-            obraz1.CopyTo(tempObraz4);
-
 
               //Wyczyszczenie listy obiektbialyów obrazowych (ich obrazów)
               obiekty_czarne.Clear();
@@ -295,10 +277,10 @@ namespace WinFormsApp1
                     }
 
                     //SEGMENTACJA BIAŁE FIGURY
-                    else if (tempObraz1.Data[ya, xa, 0] == 255 && tempObraz1.Data[ya, xa, 1] == 255 && tempObraz1.Data[ya, xa, 2] == 255)
+                    else if (tempObraz2.Data[ya, xa, 0] == 255 && tempObraz2.Data[ya, xa, 1] == 255 && tempObraz2.Data[ya, xa, 2] == 255)
                     {
                         obiektbialy = segmentacja_1_obiektu(new Point(xa, ya));
-                        CvInvoke.Subtract(tempObraz1, obiektbialy, tempObraz1);
+                        CvInvoke.Subtract(tempObraz2, obiektbialy, tempObraz2);
 
                         byte[,,] temp = obiektbialy.Data;
                         F = calculate_area(temp);
@@ -343,57 +325,68 @@ namespace WinFormsApp1
                 for (ya = 1; ya < obraz1.Height; ya++)
                 {
                             // SEGMENTACJA BIAŁE POLA
-                    if (tempObraz3.Data[ya, xa, 0] > 200 && tempObraz3.Data[ya, xa, 0] < 220 && tempObraz3.Data[ya, xa, 1] > 230 && tempObraz3.Data[ya, xa, 1] < 245 && tempObraz3.Data[ya, xa, 2] > 230 && tempObraz3.Data[ya, xa, 2] < 245)
+                    if (tempObraz2.Data[ya, xa, 0] > 200 && tempObraz2.Data[ya, xa, 0] < 220 && tempObraz2.Data[ya, xa, 1] > 230 && tempObraz2.Data[ya, xa, 1] < 245 && tempObraz2.Data[ya, xa, 2] > 230 && tempObraz2.Data[ya, xa, 2] < 245)
                     {
                         bialepole = segmentacja_1_obiektu(new Point(xa, ya));
-                        CvInvoke.Subtract(tempObraz3, bialepole, tempObraz3);
+                        CvInvoke.Subtract(tempObraz2, bialepole, tempObraz2);
 
                         byte[,,] temp = bialepole.Data;
                         F = calculate_area(temp);
-
+                       // bialepole.ThresholdBinary(new Bgr(120, 150, 100), new Bgr(255, 255, 255));
+                        string s = "";
                           if (F > 1200)
                           {
                             ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, true, true);
-                            if (F > 2200) board.is_figure = false;
+                            if (F > 2200) 
+                            {
+                                board.is_figure = false;
+                                s = "";
+                            } 
                             else
                             {
                                 board.is_figure = true;
+                                if (F > 1900 && F < 2100) s = "Pawn ";
 
                             }
                             chessboardnotation.Add(board);
                             licznik_pom++;
 
-                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString());
+                            listBox1.Items.Add(s + board.field_name + "   F =" + F.ToString());
                             checkerboard.Add(bialepole);
                           }
 
                                 obraz2 = obraz2.Add(bialepole);
-                                pictureBox2.Image = obraz2.AsBitmap();
+                                pictureBox2.Image = bialepole.AsBitmap();
                                 licznik++;
                     }
 
                             // SEGMENTACJA CZARNE POLA
-                    else if (tempObraz4.Data[ya, xa, 0] == 86 && (tempObraz4.Data[ya, xa, 1] == 150 || tempObraz4.Data[ya, xa, 1] == 0) && tempObraz4.Data[ya, xa, 2] == 118)
+                    else if (tempObraz2.Data[ya, xa, 0] == 86 && (tempObraz2.Data[ya, xa, 1] == 150 || tempObraz2.Data[ya, xa, 1] == 0) && tempObraz2.Data[ya, xa, 2] == 118)
                     {
                                 czarnepole = segmentacja_1_obiektu(new Point(xa, ya));
-                                CvInvoke.Subtract(tempObraz4, czarnepole, tempObraz4);
+                                CvInvoke.Subtract(tempObraz2, czarnepole, tempObraz2);
 
                                 byte[,,] temp = czarnepole.Data;
                                 F = calculate_area(temp);
-
+                                  string s = "";
                                 if (F > 1200)
                                 {
                                     ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, true, false);
-                                    if (F > 2200) board.is_figure = false;
+                                    if (F > 2200)
+                                    {
+                                        board.is_figure = false;
+                                        s = "";
+                                    }
                                     else
                                     {
                                         board.is_figure = true;
+                                        if (F > 1900 && F < 2100) s = "Pawn ";
 
                                     }
-                                    chessboardnotation.Add(board);
+                            chessboardnotation.Add(board);
                                     licznik_pom++;
 
-                                    listBox1.Items.Add(board.field_name + "   F =" + F.ToString());
+                                    listBox1.Items.Add(s + board.field_name + "   F =" + F.ToString());
                                     checkerboard.Add(czarnepole);
 
                                 }
@@ -405,7 +398,7 @@ namespace WinFormsApp1
                         
                     
                 }
-                if (licznik > 200) break;  // max. wszystkich wykrytych obiektów = 200 - wyjscie z pętli for
+                if (licznik > 200) break;  
             }
         }
 
@@ -436,21 +429,13 @@ namespace WinFormsApp1
 
             int index = listBox1.SelectedIndex;
 
-            obraz_binarny = checkerboard[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
+          //  obraz_binarny = checkerboard[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
           //  obraz_binarny = obiekty_biale[index].ThresholdBinary(new Bgr(0, 0, 0), new Bgr(255, 255, 255));
             //obraz_binarny.CopyTo(obraz3);
-            pictureBox3.Image = obraz_binarny.AsBitmap();
+            pictureBox3.Image = checkerboard[index].AsBitmap();
         }
 
-        private void Chess_App_Load(object sender, EventArgs e)
-        {
-            //inicjalizacja obrazów
-            obraz1 = new Image<Bgr, byte>(pictureBox1.Size);
-            obraz2 = obraz1.Clone();
-            obraz3 = obraz1.Clone();
 
-            obraz_binarny = obraz1.Clone();
-        }
 
         private int calculate_area(byte[,,] temp)
         {
@@ -466,7 +451,6 @@ namespace WinFormsApp1
                     }
                 }
             }
-
             return F;
         }
         private List<string> generate_chess_notation(List<string> L)
@@ -489,8 +473,6 @@ namespace WinFormsApp1
             return L;
         }
 
-        //Procedura Pojedynczego Kroku Segmentacji dla danego ogniska
-
         private Image<Bgr, byte> segmentacja_1_obiektu(Point ognisko)
         {
             // procedura zwraca obraz z pojedynczym obrazem
@@ -506,7 +488,6 @@ namespace WinFormsApp1
 
             Rectangle rect = new Rectangle();
 
-            //zmiana koloru przy wywołaniu - lub opcja 2 - stały kolor
 
              kolor.V0 = 120;
              kolor.V1 = 150;
@@ -516,7 +497,7 @@ namespace WinFormsApp1
             //Punkt startowy segmentacji (należący do obiektu) określa parametr 'ognisko'
             //Dwa ostatnie argumenty funkcji to odpowiednio maksymalna różnica koloru sąsiadujących pikseli obiektu w dół i w górę
 
-            CvInvoke.FloodFill(tempObraz, maska, ognisko, kolor, out rect, new MCvScalar(5, 5, 5), new MCvScalar(5, 5, 5),
+            CvInvoke.FloodFill(tempObraz, maska, ognisko, kolor, out rect, new MCvScalar(1, 1, 1), new MCvScalar(1, 1, 1),
                 Emgu.CV.CvEnum.Connectivity.FourConnected, Emgu.CV.CvEnum.FloodFillType.FixedRange);
 
             // Connectivity.EightConnected
@@ -526,6 +507,9 @@ namespace WinFormsApp1
             tempObraz = tempObraz.ThresholdToZero(new Bgr(kolor.V0 - 1, kolor.V1 - 1, kolor.V2 - 1));
             tempObraz = tempObraz.ThresholdToZeroInv(new Bgr(kolor.V0, kolor.V1, kolor.V2));
 
+            //Narysowanie prostokąta otaczającego wysegmentowany obiekt
+            CvInvoke.Rectangle(tempObraz, rect, new MCvScalar(0, 0, 255), 1);
+            
             // tempObraz   na zakończenie progowania powinien zawierać obraz z pojedynczym obiektem
 
             CvInvoke.Resize(maska, maska, new Size(pictureBox3.Width, pictureBox3.Height));

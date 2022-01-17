@@ -205,7 +205,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "Chess_App";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Chess_App_Load);
+          //  this.Load += new System.EventHandler(this.Chess_App_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
