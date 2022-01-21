@@ -28,6 +28,7 @@ namespace WinFormsApp1
 
         int licznik = 1;
         int licznik_duzych = 1;
+        int pole = 0;
 
         //Struktura przechowująca momenty figury
         Moments momenty = new Moments();
@@ -49,6 +50,8 @@ namespace WinFormsApp1
         //Początkowy kolor w procedurze segmentacji
         MCvScalar kolor = new MCvScalar(0, 0, 0);
 
+        Rectangle rectangle = new Rectangle();
+
 
         public Chess_App()
         {
@@ -65,7 +68,7 @@ namespace WinFormsApp1
         private void button_From_File_Click(object sender, EventArgs e)
         {
             Mat zPliku;
-            zPliku = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a.bmp");
+            zPliku = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a2.bmp");
             CvInvoke.Resize(zPliku, zPliku, new Size(pictureBox1.Width, pictureBox1.Height));
             obraz1 = zPliku.ToImage<Bgr, byte>();
             pictureBox1.Image = obraz1.AsBitmap();
@@ -129,14 +132,17 @@ namespace WinFormsApp1
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            MouseEventArgs M = e as MouseEventArgs;
-
+            MouseEventArgs? M = e as MouseEventArgs;
+            
             // Pobranie koloru w miejscu klikniecia
              Bitmap b = new Bitmap(pictureBox1.ClientSize.Width, pictureBox1.Height);
             pictureBox1.DrawToBitmap(b, pictureBox1.ClientRectangle);
+#pragma warning disable CS8602 // Wyłuskanie odwołania, które może mieć wartość null.
             Color kolorKlikniecia = b.GetPixel(M.X, M.Y);
+#pragma warning restore CS8602 // Wyłuskanie odwołania, które może mieć wartość null.
             b.Dispose();
-            listBox_Black_Chess_Notation.Items.Add("Kolor: " + kolorKlikniecia.ToString());
+            listBox_Black_Chess_Notation.Items.Add(//"Kolor: " + kolorKlikniecia.ToString() + " " +
+                M.Location.ToString());
              pictureBox1.Image = obraz1.AsBitmap();
             //pictureBox1.Image = obraz1.AsBitmap();
 
@@ -177,9 +183,6 @@ namespace WinFormsApp1
             g = tab_obraz1.Data[me.Y, me.X, 1];
             r = tab_obraz1.Data[me.Y, me.X, 2];
 
-            // label7.Text = b.ToString();
-            //  label6.Text = g.ToString();
-            //      label5.Text = r.ToString();
 
             Bgr kolor_bgr;
             long kolor_long;
@@ -204,6 +207,7 @@ namespace WinFormsApp1
             int xa, ya;
             int F = 0;
             int licznik_pom = 0;
+            Figura f;
             // pobranie progu dla dużych obiektów
                 
             Image<Bgr, byte> obiektczarny = new Image<Bgr, byte>(obraz1.Size);
@@ -232,6 +236,7 @@ namespace WinFormsApp1
             {
                 for (ya = 1; ya < obraz1.Height; ya++)
                 {
+
                     // CZARNE FIGURY
                     if (tempObraz2.Data[ya, xa, 0] == 50 && tempObraz2.Data[ya, xa, 1] == 50 && tempObraz2.Data[ya, xa, 2] == 50)
                     {
@@ -239,30 +244,56 @@ namespace WinFormsApp1
                         CvInvoke.Subtract(tempObraz2, obiektczarny, tempObraz2);
 
                         byte[,,] temp = obiektczarny.Data;
-                        F = calculate_area(temp);
 
+                        F = pole;
                         if (F > 400)
                         {
-                            if (F > 400 && F < 500)
-                                listBox_Black_Chess_Notation.Items.Add("Black Pawn " + " F =" + F.ToString());
+                            bool krol = false;
+                            bool hetman = false;
+                            bool skoczek = false;
+                            bool goniec = false;
+                            bool wieza = false;
+                            bool pionek = false;
 
-                            else if (F > 700 && F < 755)
-                                listBox_Black_Chess_Notation.Items.Add("Black Bishop " + " F =" + F.ToString());
+                            krol = sprawdz_czy_krol(temp);
+                            hetman = sprawdz_czy_hetman(temp);
+                            skoczek = sprawdz_czy_skoczek(temp);
+                            goniec = sprawdz_czy_goniec(temp);
+                            wieza = sprawdz_czy_wieza(temp);
+                            pionek = sprawdz_czy_pionek(temp);
 
-                            else if (F > 756 && F < 840)
-                                listBox_Black_Chess_Notation.Items.Add("Black Rook " + " F =" + F.ToString());
-
-                            else if (F > 850 && F < 900)
-                                listBox_Black_Chess_Notation.Items.Add("Black Knight " + " F =" + F.ToString());
-
-                            else if (F > 900 && F < 950)
-                                listBox_Black_Chess_Notation.Items.Add("Black Queen " + " F =" + F.ToString());
-
-                            else if (F > 951 && F < 999)
-                                listBox_Black_Chess_Notation.Items.Add("Black King " + " F =" + F.ToString());
-
+                            if (krol == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black King " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.King;
+                            }
+                            else if (hetman == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black Queen " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.Queen;
+                            }
+                            else if (skoczek == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black Knight " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.Knight;
+                            }
+                            else if (goniec == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black Bishop " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.Bishop;
+                            }
+                            else if (wieza == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black Rook " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.Rook;
+                            }
+                            else if (pionek == true)
+                            {
+                                listBox_Black_Chess_Notation.Items.Add("Black Pawn " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                                f = Figura.Pawn;
+                            }
                             else
-                                listBox_Black_Chess_Notation.Items.Add("Black" + licznik_duzych.ToString() + "    (" + licznik.ToString() + ")   F =" + F.ToString());
+                                listBox_Black_Chess_Notation.Items.Add("Black NON" + licznik_duzych.ToString() + "    (" + licznik.ToString() + ")   F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + rectangle.Location);
 
                             piece.area = F;
                             piece.isWhite = false;
@@ -283,30 +314,50 @@ namespace WinFormsApp1
                         CvInvoke.Subtract(tempObraz2, obiektbialy, tempObraz2);
 
                         byte[,,] temp = obiektbialy.Data;
-                        F = calculate_area(temp);
+                        F = pole;
 
-                        if (F > 300)
+                        if (F > 400)
                         {
-                            if (F > 300 && F < 450)
-                                listBox_White_Chess_Notation.Items.Add("White Pawn " + " F =" + F.ToString());
+                            bool krol = false;
+                            bool hetman = false;
+                            bool skoczek = false;
+                            bool goniec = false;
+                            bool wieza = false;
+                            bool pionek = false;
 
-                            else if (F > 590 && F < 660)
-                                listBox_White_Chess_Notation.Items.Add("White Rook " + " F =" + F.ToString());
+                            krol = sprawdz_czy_krol(temp);
+                            hetman = sprawdz_czy_hetman(temp);
+                            skoczek = sprawdz_czy_skoczek(temp);
+                            goniec = sprawdz_czy_goniec(temp);
+                            wieza = sprawdz_czy_wieza(temp);
+                            pionek = sprawdz_czy_pionek(temp);
 
-                            else if (F > 690 && F < 725)
-                                listBox_White_Chess_Notation.Items.Add("White Knight " + " F =" + F.ToString());
-
-                            else if (F > 500 && F < 560)
-                                listBox_White_Chess_Notation.Items.Add("White Bishop " + " F =" + F.ToString());
-
-                            else if (F > 765 && F < 850)
-                                listBox_White_Chess_Notation.Items.Add("White Queen " + " F =" + F.ToString());
-
-                            else if (F > 726 && F < 764)
-                                listBox_White_Chess_Notation.Items.Add("White King " + " F =" + F.ToString());
-
-
-                            else listBox_White_Chess_Notation.Items.Add("White" + licznik_duzych.ToString() + "    (" + licznik.ToString() + ")   F =" + F.ToString());
+                            if (krol == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White King " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else if (hetman == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White Queen " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else if (skoczek == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White Knight " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else if (goniec == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White Bishop " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else if (wieza == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White Rook " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else if (pionek == true)
+                            {
+                                listBox_White_Chess_Notation.Items.Add("White Pawn " + " F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + " xy=" + rectangle.Location);
+                            }
+                            else listBox_White_Chess_Notation.Items.Add("White NON" + licznik_duzych.ToString() + "    (" + licznik.ToString() + ")   F =" + F.ToString() + " w =" + rectangle.Width + " h=" + rectangle.Height + rectangle.Location);
+                         
                             obiekty_biale.Add(obiektbialy);
                         }
 
@@ -320,7 +371,7 @@ namespace WinFormsApp1
                 }
             }
                     
-            for (xa = 1; xa < obraz1.Width; xa = xa + 50)
+            for (xa = 1; xa < obraz1.Width; xa = xa + 40)
             {
                 for (ya = 1; ya < obraz1.Height; ya++)
                 {
@@ -331,8 +382,9 @@ namespace WinFormsApp1
                         CvInvoke.Subtract(tempObraz2, bialepole, tempObraz2);
 
                         byte[,,] temp = bialepole.Data;
-                        F = calculate_area(temp);
-                       // bialepole.ThresholdBinary(new Bgr(120, 150, 100), new Bgr(255, 255, 255));
+                        //F = calculate_area(temp);
+                        F = pole;
+                        // bialepole.ThresholdBinary(new Bgr(120, 150, 100), new Bgr(255, 255, 255));
                         string s = "";
                           if (F > 1200)
                           {
@@ -367,8 +419,9 @@ namespace WinFormsApp1
                                 CvInvoke.Subtract(tempObraz2, czarnepole, tempObraz2);
 
                                 byte[,,] temp = czarnepole.Data;
-                                F = calculate_area(temp);
-                                  string s = "";
+                        //F = calculate_area(temp);
+                        F = pole;
+                        string s = "";
                                 if (F > 1200)
                                 {
                                     ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, true, false);
@@ -402,6 +455,188 @@ namespace WinFormsApp1
             }
         }
 
+        public enum Figura
+        {
+            Pawn,
+            Rook,
+            Knight,
+            Bishop,
+            Queen,
+            King
+        }
+
+        private bool sprawdz_czy_pionek(byte[,,] temp)
+        {
+            // Rozpoznanie wiezy
+            decimal wsp_skal_krol_Y1, wsp_skal_krol_Y2, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y1, warunek_polozenia_Y2, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y1 = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y1 = warunek_polozenia_Y2 = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+            decimal a = 1;
+            decimal b = 2;
+            decimal c = 22;
+            decimal d = 6;
+            decimal e = 38;
+
+
+
+            wsp_skal_krol_Y1 = 2;
+            wsp_skal_krol_X1 = 2;
+            wsp_skal_krol_Y2 = c / e;
+            wsp_skal_krol_X2 = d / e;
+
+            warunek_polozenia_Y1 = rectangle.Bottom - wsp_skal_krol_Y1;
+            warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
+            warunek_polozenia_Y2 = rectangle.Y + (wsp_skal_krol_Y2 * rectangle.Height);
+            warunek_polozenia_X2 = rectangle.X + (wsp_skal_krol_X2 * rectangle.Width);
+
+
+            if (temp[(int)warunek_polozenia_Y1, (int)warunek_polozenia_X1, 0] == 120 && temp[(int)warunek_polozenia_Y2, (int)warunek_polozenia_X2, 0] == 0)
+            {
+                return true;
+            }
+
+            else return false;
+        }
+
+        private bool sprawdz_czy_wieza(byte[,,] temp)
+        {
+            // Rozpoznanie wiezy
+            decimal wsp_skal_krol_Y1, wsp_skal_krol_Y2, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y1, warunek_polozenia_Y2, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y1 = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y1 = warunek_polozenia_Y2 = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+            decimal a = 1;
+            decimal b = 2;
+            decimal c = 5;
+            decimal d = 7;
+            decimal e = 44;
+
+
+
+            wsp_skal_krol_Y1 = 2;
+            wsp_skal_krol_X1 = 2;
+            wsp_skal_krol_Y2 = c / e;
+            wsp_skal_krol_X2 = d / e;
+
+            warunek_polozenia_Y1 = rectangle.Bottom - wsp_skal_krol_Y1;
+            warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
+            warunek_polozenia_Y2 = rectangle.Y + (wsp_skal_krol_Y2 * rectangle.Height);
+            warunek_polozenia_X2 = rectangle.X + (wsp_skal_krol_X2 * rectangle.Width);
+
+
+            if (temp[(int)warunek_polozenia_Y1, (int)warunek_polozenia_X1, 0] == 120 && temp[(int)warunek_polozenia_Y2, (int)warunek_polozenia_X2, 0] == 120)
+            {
+                return true;
+            }
+
+            else return false;
+        }
+
+        private bool sprawdz_czy_goniec(byte[,,] temp)
+        {
+            // Rozpoznanie gonca
+            decimal wsp_skal_krol_Y1, wsp_skal_krol_Y2, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y1, warunek_polozenia_Y2, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y1 = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y1 = warunek_polozenia_Y2 = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+            decimal a = 1;
+            decimal b = 2;
+            decimal c = 7;
+            decimal d = 45;
+
+
+
+            wsp_skal_krol_Y1 = 2;
+            wsp_skal_krol_X1 = 2;
+            wsp_skal_krol_Y2 = a/b;
+            wsp_skal_krol_X2 = c/d;
+
+            warunek_polozenia_Y1 = rectangle.Bottom - wsp_skal_krol_Y1;
+            warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
+            warunek_polozenia_Y2 = rectangle.Y + (wsp_skal_krol_Y2 * rectangle.Height);
+            warunek_polozenia_X2 = rectangle.X + (wsp_skal_krol_X2 * rectangle.Width);
+
+
+            if (temp[(int)warunek_polozenia_Y1, (int)warunek_polozenia_X1, 0] == 120 && temp[(int)warunek_polozenia_Y2, (int)warunek_polozenia_X2, 0] == 120)
+            {
+                return true;
+            }
+
+            else return false;
+        }
+
+        private bool sprawdz_czy_skoczek(byte[,,] temp)
+        {
+            // Rozpoznanie skoczka
+            decimal wsp_skal_krol_Y, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+
+            wsp_skal_krol_Y = 2;
+            wsp_skal_krol_X1 = 2;
+            warunek_polozenia_Y = rectangle.Bottom - wsp_skal_krol_Y;
+            warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
+            warunek_polozenia_X2 = rectangle.Right - wsp_skal_krol_X1;
+
+
+            if (temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X1, 0] == 0 && temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X2, 0] == 120)
+            {
+                return true;
+            }
+
+            else return false;
+        }
+
+        private bool sprawdz_czy_hetman(byte[,,] temp)
+        {
+            // Rozpoznanie hetmana
+            decimal wsp_skal_krol_Y, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+            decimal a = 2;
+            decimal b = 13;
+            decimal c = 47;
+
+
+
+            wsp_skal_krol_Y = b /c;
+            wsp_skal_krol_X1 = 2;
+            warunek_polozenia_Y = rectangle.Y + (rectangle.Height * wsp_skal_krol_Y);
+            warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
+            warunek_polozenia_X2 = rectangle.Right - wsp_skal_krol_X1;
+           // warunek_polozenia_X3 = rectangle.X + 2;
+
+
+            if (temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X1, 0] == 120 && temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X2, 0] == 120)
+            {
+                return true;
+            }
+
+            else return false;
+        }
+
+        private bool sprawdz_czy_krol(byte[,,] temp)
+        {
+            // Rozpoznanie krola
+            decimal wsp_skal_krol_Y, wsp_skal_krol_X1, wsp_skal_krol_X2, warunek_polozenia_Y, warunek_polozenia_X1, warunek_polozenia_X2, warunek_polozenia_X3;
+            wsp_skal_krol_Y = wsp_skal_krol_X1 = wsp_skal_krol_X2 = warunek_polozenia_Y = warunek_polozenia_X1 = warunek_polozenia_X2 = warunek_polozenia_X3 = 0;
+            decimal a = 25;
+            decimal b = 48;
+            decimal c = 16;
+            decimal d = 39;
+            decimal e = 57;
+
+
+            wsp_skal_krol_Y = a / b;
+            wsp_skal_krol_X1 = c / e;
+            wsp_skal_krol_X2 = d / e;
+            warunek_polozenia_Y = rectangle.Y + (rectangle.Height * wsp_skal_krol_Y);
+            warunek_polozenia_X1 = rectangle.X + (rectangle.Width * wsp_skal_krol_X1);
+            warunek_polozenia_X2 = rectangle.X + (rectangle.Width * wsp_skal_krol_X2);
+            warunek_polozenia_X3 = rectangle.X + 2;
+
+
+            if (temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X1, 0] == 0 && temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X2, 0] == 0 && temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X3, 0] == 120)
+            {
+                return true;
+            }
+
+            else  return false;
+        }
+
         private void button_Clear_White_Chess_Notation_Click(object sender, EventArgs e)
         {
             obiekty_biale.Clear();
@@ -418,7 +653,7 @@ namespace WinFormsApp1
         private void button2_Click(object sender, EventArgs e)
         {
             // chessboardnotation.Add()
-          
+
         }
 
         private void listBox1_SelectedIndexChanged_1(object sender, EventArgs e)
@@ -493,11 +728,15 @@ namespace WinFormsApp1
              kolor.V1 = 150;
              kolor.V2 = 100;
 
+          //  kolor.V0 = 255;
+           // kolor.V1 = 255;
+          //  kolor.V2 = 255;
+
             //Funkcja FloodFill wypełnia kolorem (parametr 'kolor') obiekt na obrazie 'tempObraz'
             //Punkt startowy segmentacji (należący do obiektu) określa parametr 'ognisko'
             //Dwa ostatnie argumenty funkcji to odpowiednio maksymalna różnica koloru sąsiadujących pikseli obiektu w dół i w górę
 
-            CvInvoke.FloodFill(tempObraz, maska, ognisko, kolor, out rect, new MCvScalar(1, 1, 1), new MCvScalar(1, 1, 1),
+            pole = CvInvoke.FloodFill(tempObraz, maska, ognisko, kolor, out rect, new MCvScalar(2,2, 2), new MCvScalar(2, 2, 2),
                 Emgu.CV.CvEnum.Connectivity.FourConnected, Emgu.CV.CvEnum.FloodFillType.FixedRange);
 
             // Connectivity.EightConnected
@@ -509,7 +748,7 @@ namespace WinFormsApp1
 
             //Narysowanie prostokąta otaczającego wysegmentowany obiekt
             CvInvoke.Rectangle(tempObraz, rect, new MCvScalar(0, 0, 255), 1);
-            
+            rectangle = rect;
             // tempObraz   na zakończenie progowania powinien zawierać obraz z pojedynczym obiektem
 
             CvInvoke.Resize(maska, maska, new Size(pictureBox3.Width, pictureBox3.Height));

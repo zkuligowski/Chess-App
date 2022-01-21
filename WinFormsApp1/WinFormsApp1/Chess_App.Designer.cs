@@ -52,7 +52,7 @@
             this.pictureBox1.BackColor = System.Drawing.Color.Black;
             this.pictureBox1.Location = new System.Drawing.Point(1, 41);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(480, 360);
+            this.pictureBox1.Size = new System.Drawing.Size(800, 600);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
@@ -89,7 +89,7 @@
             // 
             // button_Clear_White_Chess_Notation
             // 
-            this.button_Clear_White_Chess_Notation.Location = new System.Drawing.Point(1029, 41);
+            this.button_Clear_White_Chess_Notation.Location = new System.Drawing.Point(971, 3);
             this.button_Clear_White_Chess_Notation.Name = "button_Clear_White_Chess_Notation";
             this.button_Clear_White_Chess_Notation.Size = new System.Drawing.Size(104, 49);
             this.button_Clear_White_Chess_Notation.TabIndex = 6;
@@ -101,9 +101,9 @@
             // 
             this.listBox_White_Chess_Notation.FormattingEnabled = true;
             this.listBox_White_Chess_Notation.ItemHeight = 15;
-            this.listBox_White_Chess_Notation.Location = new System.Drawing.Point(974, 96);
+            this.listBox_White_Chess_Notation.Location = new System.Drawing.Point(873, 58);
             this.listBox_White_Chess_Notation.Name = "listBox_White_Chess_Notation";
-            this.listBox_White_Chess_Notation.Size = new System.Drawing.Size(270, 259);
+            this.listBox_White_Chess_Notation.Size = new System.Drawing.Size(457, 274);
             this.listBox_White_Chess_Notation.TabIndex = 7;
             this.listBox_White_Chess_Notation.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -111,9 +111,9 @@
             // 
             this.listBox_Black_Chess_Notation.FormattingEnabled = true;
             this.listBox_Black_Chess_Notation.ItemHeight = 15;
-            this.listBox_Black_Chess_Notation.Location = new System.Drawing.Point(974, 455);
+            this.listBox_Black_Chess_Notation.Location = new System.Drawing.Point(1358, 58);
             this.listBox_Black_Chess_Notation.Name = "listBox_Black_Chess_Notation";
-            this.listBox_Black_Chess_Notation.Size = new System.Drawing.Size(270, 304);
+            this.listBox_Black_Chess_Notation.Size = new System.Drawing.Size(406, 274);
             this.listBox_Black_Chess_Notation.TabIndex = 8;
             this.listBox_Black_Chess_Notation.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
@@ -129,9 +129,9 @@
             // pictureBox2
             // 
             this.pictureBox2.BackColor = System.Drawing.Color.Black;
-            this.pictureBox2.Location = new System.Drawing.Point(488, 41);
+            this.pictureBox2.Location = new System.Drawing.Point(807, 383);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(480, 360);
+            this.pictureBox2.Size = new System.Drawing.Size(800, 600);
             this.pictureBox2.TabIndex = 10;
             this.pictureBox2.TabStop = false;
             this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
@@ -139,15 +139,15 @@
             // pictureBox3
             // 
             this.pictureBox3.BackColor = System.Drawing.Color.Black;
-            this.pictureBox3.Location = new System.Drawing.Point(488, 407);
+            this.pictureBox3.Location = new System.Drawing.Point(807, 361);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(480, 360);
+            this.pictureBox3.Size = new System.Drawing.Size(800, 600);
             this.pictureBox3.TabIndex = 11;
             this.pictureBox3.TabStop = false;
             // 
             // button_Clear_Black_Chess_Notation
             // 
-            this.button_Clear_Black_Chess_Notation.Location = new System.Drawing.Point(1029, 400);
+            this.button_Clear_Black_Chess_Notation.Location = new System.Drawing.Point(1326, 3);
             this.button_Clear_Black_Chess_Notation.Name = "button_Clear_Black_Chess_Notation";
             this.button_Clear_Black_Chess_Notation.Size = new System.Drawing.Size(104, 49);
             this.button_Clear_Black_Chess_Notation.TabIndex = 12;
@@ -166,7 +166,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(38, 417);
+            this.button2.Location = new System.Drawing.Point(298, 657);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(146, 99);
             this.button2.TabIndex = 14;
@@ -178,7 +178,7 @@
             // 
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 15;
-            this.listBox1.Location = new System.Drawing.Point(211, 407);
+            this.listBox1.Location = new System.Drawing.Point(24, 657);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(247, 304);
             this.listBox1.TabIndex = 15;
@@ -188,7 +188,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1256, 768);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(1776, 973);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -205,7 +206,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "Chess_App";
             this.Text = "Form1";
-          //  this.Load += new System.EventHandler(this.Chess_App_Load);
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
