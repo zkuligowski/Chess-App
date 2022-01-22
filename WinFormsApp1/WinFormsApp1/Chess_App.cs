@@ -68,7 +68,7 @@ namespace WinFormsApp1
         private void button_From_File_Click(object sender, EventArgs e)
         {
             Mat zPliku;
-            zPliku = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a22.bmp");
+            zPliku = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a23.bmp");
             CvInvoke.Resize(zPliku, zPliku, new Size(pictureBox1.Width, pictureBox1.Height));
             obraz1 = zPliku.ToImage<Bgr, byte>();
             pictureBox1.Image = obraz1.AsBitmap();
@@ -156,687 +156,100 @@ namespace WinFormsApp1
                     //PAWN
                     if (element.whichfigure == "Pawn")
                     {
-                        ChessBoard el = element;
-                        int row = element.row;
-                        int column = element.column;
-
-                        int leftattack, rightattack, forward1, forward2, double_jump_row, cant_attack_on_column_left, cant_attack_on_column_right;
-                        leftattack = rightattack = forward1 = forward2 = double_jump_row = cant_attack_on_column_left = cant_attack_on_column_right = 0;
-                        bool attack_on_white = false;
-
-                        if(element.is_white == true)
-                        {
-                            leftattack = -9;
-                            rightattack = 7;
-                            forward1 = -1;
-                            forward2 = -2;
-                            attack_on_white = false;
-                            double_jump_row = 2;
-                            cant_attack_on_column_left = 1;
-                            cant_attack_on_column_right = 8;
-                        }
-                        else if(element.is_white == false)
-                        {
-                            leftattack = 9;
-                            rightattack = -7;
-                            forward1 = 1;
-                            forward2 = 2;
-                            attack_on_white = true;
-                            double_jump_row = 7;
-                            cant_attack_on_column_left = 8;
-                            cant_attack_on_column_right = 1;
-                        }
-
-                        // Forward movement
-                        el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward1);
-                        if (el.is_figure == false)
-                        {
-                            Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                            CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-
-                            if (row == double_jump_row)
-                            {
-                                el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward2);
-                                if (el.is_figure == false)
-                                {
-                                    p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-                            else
-                            {
-                                el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward1);
-                                p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                        }
-                        // Left attack
-                        if (element.column != cant_attack_on_column_left)
-                        {
-                            el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + leftattack);
-
-                            if (el.is_figure == true && el.is_white == attack_on_white)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                            }
-                        }
-
-                        //Right attack
-                        if (element.column != cant_attack_on_column_right)
-                        {
-                            el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + rightattack);
-
-                            if (el.is_figure == true && el.is_white == attack_on_white)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                            }
-                        }
+                        draw_Pawn_Movement(element);
                     }
 
                     //ROOK   
-                    else if (element.whichfigure == "Rook" && element.is_white)
+                    else if (element.whichfigure == "Rook")
                     {
-                        ChessBoard el = element;
-                        int row = element.row;
-                        int column = element.column;
-                        int index = chessboardnotation.IndexOf(element);
+                        // Horizontal Right Movement // int move = 8
+                        draw_Vertical_or_Horizontal_Movement(element, 8, "HORIZONTAL");
 
+                        // Horizontal Left Movement // int move = -8
+                        draw_Vertical_or_Horizontal_Movement(element, -8, "HORIZONTAL");
 
-                        // Horizontal Right
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 8;
-                            if (index > 63) break;
-                            el = chessboardnotation.ElementAt(index);
+                        //Vertical up Movement // int move = -1
+                        draw_Vertical_or_Horizontal_Movement(element, -1, "VERTICAL");
 
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-
-                        }
-
-                        // Horizontal Left
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 8;
-                            if (index < 0) break;
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-
-                        }
-
-                        //Vertical up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 1;
-                            if (index < 0) break;
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                        }
-
-                        //Vertical down
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 1;
-                            if (index > 63 || row <= 1 || column > 8) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                        }
+                        //Vertical Down Movement // int move = 1
+                        draw_Vertical_or_Horizontal_Movement(element, 1, "VERTICAL");               
                     }
 
                     //BISHOP
-                    else if (element.whichfigure == "Bishop" && element.is_white)
+                    else if (element.whichfigure == "Bishop")
                     {
-                        ChessBoard el = element;
-                        int row = element.row;
-                        int column = element.column;
-                        int index = chessboardnotation.IndexOf(element);
+                        //Diagonal Left Down Movement // int move = -7
+                        draw_Diagonal_Movement(element, -7, "DOWN");
 
-                        //Diagonal Left Down
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 7;
-                            if (index < 0 || row <= 1) break;
+                        //Diagonal Right Down Movement // int move = 9
+                        draw_Diagonal_Movement(element, 9, "DOWN");
 
-                            el = chessboardnotation.ElementAt(index);
+                        //Diagonal Right Up Movement // int move = 7
+                        draw_Diagonal_Movement(element, 7, "UP");
 
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 1 || el.column == 1) break;
-
-                        }
-
-                        //Diagonal Right Up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 7;
-                            if (index > 63) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 8 || el.column == 8) break;
-                        }
-
-                        //Diagonal Left Up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 9;
-                            if (index < 0) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 8 || el.column == 1) break;
-                        }
-
-                        //Diagonal Right Down
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 9;
-                            if (index > 63 || row <= 1) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 1 || el.column == 8) break;
-                        }
+                        //Diagonal Left Up Movement // int move = -9
+                        draw_Diagonal_Movement(element, -9, "UP");
                     }
 
                     //KNIGHT
-                    else if (element.whichfigure == "Knight" && element.is_white)
+                    else if (element.whichfigure == "Knight")
                     {
-                        ChessBoard el = element;
-                        int row = element.row;
-                        int column = element.column;
-                        int index = chessboardnotation.IndexOf(element);
+                        //Draw Move 2xUp -> 1xLeft
+                        if (element.row < 7) draw_Knight_Movements(element, -10);
 
-                        //Diagonal Up->Left
-                        if (element.row < 7)
-                        {
-                            index = index - 10;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
+                        //Draw Move 2xUp -> 1xRight
+                        if (element.row < 7) draw_Knight_Movements(element, 6);
 
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
+                        //Draw Move 2xRight -> 1xUp
+                        if (element.row < 8) draw_Knight_Movements(element, 15);
 
-                            //Diagonal Up->Right
+                        //Draw Move 2xRight -> 1xDown
+                        if (element.row > 1) draw_Knight_Movements(element, 17);
 
-                            index = chessboardnotation.IndexOf(element);
-                            index = index + 6;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
+                        //Draw Move 2xDown -> 1xLeft
+                        if (element.row > 2) draw_Knight_Movements(element, -6);
 
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-                        }
+                        //Draw Move 2xDown -> 1xRight
+                        if (element.row > 2) draw_Knight_Movements(element, 10);
 
+                        //Draw Move 2xLeft -> 1xUp
+                        if (element.row < 8) draw_Knight_Movements(element, -17);
 
-                        //Diagonal Right->Up
-                        if (element.row < 8)
-                        {
-                            index = chessboardnotation.IndexOf(element);
-                            index = index + 15;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
+                        //Draw Move 2xLeft -> 1xDown
+                        if (element.row > 1) draw_Knight_Movements(element, -15);
 
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-
-                            //Diagonal Left->Up
-                            index = chessboardnotation.IndexOf(element);
-                            index = index - 17;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
-
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-                        }
-
-                        //Diagonal Down->Left
-                        if (element.row > 2)
-                        {
-                            index = chessboardnotation.IndexOf(element);
-                            index = index - 15;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
-
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-
-
-
-                            //Diagonal Down->Right
-                            index = chessboardnotation.IndexOf(element);
-                            index = index + 10;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
-
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-                        }
-
-                        //Diagonal Right->Down
-                        if (element.row > 1)
-                        {
-                            index = chessboardnotation.IndexOf(element);
-                            index = index + 17;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
-
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-
-                            //Diagonal Left->Down
-                            index = chessboardnotation.IndexOf(element);
-                            index = index - 15;
-                            if (index >= 0 && index <= 63)
-                            {
-                                el = chessboardnotation.ElementAt(index);
-
-                                if (el.is_figure == true && el.is_white == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                }
-                                else if (el.is_figure == false)
-                                {
-                                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                                }
-                            }
-                        }
                     }
 
                     //QUEEN
-                    else if (element.whichfigure == "Queen" && element.is_white)
+                    else if (element.whichfigure == "Queen")
                     {
-                        ChessBoard el = element;
-                        int row = element.row;
-                        int column = element.column;
-                        int index = chessboardnotation.IndexOf(element);
+                        // Horizontal Right Movement // int move = 8
+                        draw_Vertical_or_Horizontal_Movement(element, 8, "HORIZONTAL");
 
-                        //Diagonal Left Down
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 7;
-                            if (index < 0 || row <= 1) break;
+                        // Horizontal Left Movement // int move = -8
+                        draw_Vertical_or_Horizontal_Movement(element, -8, "HORIZONTAL");
 
-                            el = chessboardnotation.ElementAt(index);
+                        //Vertical up Movement // int move = -1
+                        draw_Vertical_or_Horizontal_Movement(element, -1, "VERTICAL");
 
-                            if (el.is_figure == true && el.is_white == true) break;
+                        //Vertical Down Movement // int move = 1
+                        draw_Vertical_or_Horizontal_Movement(element, 1, "VERTICAL");
 
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 1 || el.column == 1) break;
+                        //Diagonal Left Down Movement // int move = -7
+                        draw_Diagonal_Movement(element, -7, "DOWN");
 
-                        }
+                        //Diagonal Right Down Movement // int move = 9
+                        draw_Diagonal_Movement(element,  9, "DOWN");
+                        
+                        //Diagonal Right Up Movement // int move = 7
+                        draw_Diagonal_Movement(element,  7, "UP");
 
-                        //Diagonal Right Up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 7;
-                            if (index > 63) break;
+                        //Diagonal Left Up Movement // int move = -9
+                        draw_Diagonal_Movement(element, -9, "UP");
 
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 8 || el.column == 8) break;
-                        }
-
-                        //Diagonal Left Up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 9;
-                            if (index < 0) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 8 || el.column == 1) break;
-                        }
-
-                        //Diagonal Right Down
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 9;
-                            if (index > 63 || row <= 1) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                            if (el.row == 1 || el.column == 8) break;
-                        }
-
-
-                        index = chessboardnotation.IndexOf(element);
-
-
-                        // Horizontal Right
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 8;
-                            if (index > 63) break;
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-
-                        }
-
-                        // Horizontal Left
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 8;
-                            if (index < 0) break;
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-
-                        }
-
-                        //Vertical up
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index - 1;
-                            if (index < 0) break;
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                        }
-
-                        //Vertical down
-                        index = chessboardnotation.IndexOf(element);
-                        for (int i = column; i <= 8; i++)
-                        {
-                            index = index + 1;
-                            if (index > 63 || row <= 1 || column > 8) break;
-
-                            el = chessboardnotation.ElementAt(index);
-
-                            if (el.is_figure == true && el.is_white == true) break;
-
-                            else if (el.is_figure == true && el.is_white == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
-                                break;
-                            }
-                            else if (el.is_figure == false)
-                            {
-                                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
-                                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
-                            }
-                        }
                     }
 
+                    //King
                     else if (element.whichfigure == "King" && element.is_white)
                     {
                         ChessBoard el = element;
@@ -1001,6 +414,211 @@ namespace WinFormsApp1
             }
 
         }
+        private void draw_Knight_Movements(ChessBoard element, int move)
+        {
+            ChessBoard el;
+            int row = element.row;
+            int column = element.column;
+            int index = chessboardnotation.IndexOf(element);
+            bool attack_on_white = false;
+
+            if (element.is_white == true)
+            {
+                attack_on_white = false;
+            }
+            else if (element.is_white == false)
+            {
+                attack_on_white = true;
+            }
+
+            for (int i = 1; i <= 1; i++)
+            {
+                index = index + move;
+                if (index >= 0 && index <= 63)
+                {
+                    el = chessboardnotation.ElementAt(index);
+                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+
+                    if (el.is_figure == true && el.is_white == !attack_on_white) break;
+                    else if (el.is_figure == true && el.is_white == attack_on_white)
+                    {
+                        CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
+                        break;
+                    }
+                    else if (el.is_figure == false)
+                    {
+                        CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+                    }
+                }
+            }
+        }
+
+        private void draw_Diagonal_Movement(ChessBoard element, int move, string up_or_down_diagonal)
+        {
+            ChessBoard el;
+            int column = element.column;
+            int index = chessboardnotation.IndexOf(element);
+            bool attack_on_white = false;
+
+                if (element.is_white == true)
+            {
+                attack_on_white = false;
+            }
+            else if (element.is_white == false)
+            {
+                attack_on_white = true;
+            }
+
+            for (int i = column; i <= 8; i++)
+            {
+                index = index + move;
+                if (index < 0 || index > 63) break;
+
+                if (element.row == 8 && up_or_down_diagonal == "UP")
+                {
+                    break;
+                }
+                else if (element.row == 1 && up_or_down_diagonal == "DOWN")
+                {
+                    break;
+                }
+
+                el = chessboardnotation.ElementAt(index);
+                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                if (el.is_figure == true && el.is_white == !attack_on_white) break;
+
+                else if (el.is_figure == true && el.is_white == attack_on_white)
+                {
+
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
+                    break;
+                }
+                else if (el.is_figure == false)
+                {
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+                }
+                if (el.row == 1 || el.column == 1 || el.row == 8 || el.column == 8) break;
+
+            }
+        }
+
+        private void draw_Vertical_or_Horizontal_Movement(ChessBoard element, int move, string vertical_or_horizontal)
+        {
+            ChessBoard el;
+            int column = element.column;
+            int index = chessboardnotation.IndexOf(element);
+            bool attack_on_white = false;
+
+            if (element.is_white == true)
+            {
+                attack_on_white = false;
+            }
+            else if (element.is_white == false)
+            {
+                attack_on_white = true;
+            }
+
+            for (int i = column; i <= 8; i++)
+            {
+                index = index + move;
+                if (index > 63 || index < 0) break;
+                el = chessboardnotation.ElementAt(index);
+                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+
+                if (element.column != el.column && vertical_or_horizontal == "VERTICAL") break;
+                if (el.is_figure == true && el.is_white == !attack_on_white) break;
+
+                else if (el.is_figure == true && el.is_white == attack_on_white)
+                {
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
+                    break;
+                }
+                else if (el.is_figure == false)
+                {
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+                }
+            }
+        }
+
+        private void draw_Pawn_Movement(ChessBoard element)
+        {
+            ChessBoard el;
+            int row = element.row;
+
+            int leftattack, rightattack, forward1, forward2, double_jump_row, cant_attack_on_column_left, cant_attack_on_column_right;
+            leftattack = rightattack = forward1 = forward2 = double_jump_row = cant_attack_on_column_left = cant_attack_on_column_right = 0;
+            bool attack_on_white = false;
+
+            if (element.is_white == true)
+            {
+                leftattack = -9;
+                rightattack = 7;
+                forward1 = -1;
+                forward2 = -2;
+                attack_on_white = false;
+                double_jump_row = 2;
+                cant_attack_on_column_left = 1;
+                cant_attack_on_column_right = 8;
+            }
+            else if (element.is_white == false)
+            {
+                leftattack = 9;
+                rightattack = -7;
+                forward1 = 1;
+                forward2 = 2;
+                attack_on_white = true;
+                double_jump_row = 7;
+                cant_attack_on_column_left = 8;
+                cant_attack_on_column_right = 1;
+            }
+
+            // Forward movement
+            el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward1);
+            if (el.is_figure == false)
+            {
+                Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+
+                if (row == double_jump_row)
+                {
+                    el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward2);
+                    if (el.is_figure == false)
+                    {
+                        p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                        CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+                    }
+                }
+                else
+                {
+                    el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + forward1);
+                    p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(0, 0, 255), 5);
+                }
+            }
+            // Left attack
+            if (element.column != cant_attack_on_column_left)
+            {
+                el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + leftattack);
+
+                if (el.is_figure == true && el.is_white == attack_on_white)
+                {
+                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
+                }
+            }
+
+            //Right attack
+            if (element.column != cant_attack_on_column_right)
+            {
+                el = chessboardnotation.ElementAt(chessboardnotation.IndexOf(element) + rightattack);
+
+                if (el.is_figure == true && el.is_white == attack_on_white)
+                {
+                    Point p = new Point((el.rectangle.X + el.rectangle.Width / 2), (el.rectangle.Y + el.rectangle.Height / 2));
+                    CvInvoke.Circle(obrazxD, p, 20, new MCvScalar(255, 0, 0), 5);
+                }
+            }
+        }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
@@ -1050,7 +668,7 @@ namespace WinFormsApp1
                         byte[,,] temp = obiektczarny.Data;
 
                         F = pole;
-                        if (F > 400)
+                        if (F > 200)
                         {
                             string figure = "";
                             bool king = false;      //1
@@ -1121,7 +739,7 @@ namespace WinFormsApp1
                         byte[,,] temp = obiektbialy.Data;
                         F = pole;
 
-                        if (F > 400)
+                        if (F > 200)
                         {
                             string figure = "";
                             bool king = false;      //1
@@ -1251,9 +869,6 @@ namespace WinFormsApp1
                             {
                                 isfig = true;
                             }
-                            //board.field_name = chess_notation_list.ElementAt(licznik_pom);
-                            //board.rectangle = rectangle;
-                            //board.is_white = false;
 
                             ChessBoard board = new(chess_notation_list.ElementAt(licznik_pom), F, isfig, false, rectangle, "", cols, rows);
                             chessboardnotation.Add(board);
@@ -1274,27 +889,19 @@ namespace WinFormsApp1
                         pictureBox2.Image = obraz2.AsBitmap();
                         licznik++;
                     }
-
-
-
                 }
                 if (licznik > 200) break;
             }
 
             foreach (ChessBoard element in chessboardnotation)
             {
-                //Rectangle r = new Rectangle();
-                // ChessBoard cb = new ChessBoard("", 0, false, false, r);
-                //cb = element;
+
                 int rect_X = element.rectangle.X;
                 int rect_Y = element.rectangle.Y;
                 int rect_X_plus_width = element.rectangle.X + element.rectangle.Width;
                 int rect_Y_plus_height = element.rectangle.Y + element.rectangle.Height;
 
-                //for (int X = rect_X; rect_X <= rect_X_plus_width; rect_X++)
-                //{
-                //  for (int Y = rect_Y; rect_Y <= rect_Y_plus_height; rect_Y++)
-                //{
+
                 foreach (ChessPiece cp in chessPiece)
                 {
                     if (cp.piecepoint_X > rect_X && cp.piecepoint_X < rect_X_plus_width && cp.piecepoint_Y > rect_Y && cp.piecepoint_Y < rect_Y_plus_height)
@@ -1302,17 +909,7 @@ namespace WinFormsApp1
                         element.whichfigure = cp.Figure;
                         element.is_white = cp.isWhite;
                     }
-
-
-
-
-                    // if (cp.piecepoint_X == X && cp.piecepoint_Y == Y)
-                    //{
-                    //  element.whichfigure = cp.Figure;
-                    // }
                 }
-                //}
-                //}
             }
         }
 
@@ -1452,7 +1049,6 @@ namespace WinFormsApp1
             warunek_polozenia_Y = rectangle.Y + (rectangle.Height * wsp_skal_krol_Y);
             warunek_polozenia_X1 = rectangle.X + wsp_skal_krol_X1;
             warunek_polozenia_X2 = rectangle.Right - wsp_skal_krol_X1;
-            // warunek_polozenia_X3 = rectangle.X + 2;
 
 
             if (temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X1, 0] == 120 && temp[(int)warunek_polozenia_Y, (int)warunek_polozenia_X2, 0] == 120)
@@ -1524,13 +1120,8 @@ namespace WinFormsApp1
                     {
                         listBox1.Items.Add("Black " + c.whichfigure + " " + c.field_name.ToString());
                     }
-
                 }
-
-                //listBox1.Items.Add(c.Figure.ToString() + c.isWhite.ToString());
-                //pictureBox3.Image = c.AsBitmap();
             }
-
         }
 
         private void listBox1_SelectedIndexChanged_1(object sender, EventArgs e)
@@ -1546,8 +1137,6 @@ namespace WinFormsApp1
             //obraz_binarny.CopyTo(obraz3);
             pictureBox3.Image = checkerboard[index].AsBitmap();
         }
-
-
 
         private int calculate_area(byte[,,] temp)
         {
@@ -1565,13 +1154,13 @@ namespace WinFormsApp1
             }
             return F;
         }
+      
         private List<string> generate_chess_notation(List<string> L)
         {
             for (int i = 1; i <= 8; i++)
             {
                 for (int j = 8; j >= 1; j--)
                 {
-
                     if (i == 1) L.Add("A" + j.ToString());
                     else if (i == 2) L.Add("B" + j.ToString());
                     else if (i == 3) L.Add("C" + j.ToString());
@@ -1582,7 +1171,6 @@ namespace WinFormsApp1
                     else if (i == 8) L.Add("H" + j.ToString());
                 }
             }
-
             return L;
         }
 
