@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -19,16 +20,19 @@ namespace Chess_App
             this.whichfigure = whichfigure;
             this.column = column;
             this.row = row;
-            
+
         }
 
-    public int field_area { get; set; }
-    public bool is_figure { get; set; }
-    public string field_name { get; set; }
-    public bool is_white { get; set; }
-    public Rectangle rectangle { get; set; }
-    public string whichfigure { get; set; }
-    public int column { get; set; }
-    public int row { get; set; }
-}
+        public int field_area { get; set; }
+        public bool is_figure { get; set; }
+        public string field_name { get; set; }
+        public bool is_white { get; set; }
+        public Rectangle rectangle { get; set; }
+        public string whichfigure { get; set; }
+        public int column { get; set; }
+        public int row { get; set; }
+    }
+
+  
+
 }
