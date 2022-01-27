@@ -123,8 +123,6 @@
             this.textBox_Path.Name = "textBox_Path";
             this.textBox_Path.Size = new System.Drawing.Size(432, 23);
             this.textBox_Path.TabIndex = 9;
-            this.textBox_Path.Text = "C:\\Users\\zbign\\OneDrive - Politechnika Łódzka\\V SEMESTR\\Studia\\V SEMESTR\\Systemy " +
-    "wizyjne\\Laboratorium\\PROJEKT_MOJEGO_ZYCIA\\Chess_Board_1_Neo_Green.png";
             // 
             // pictureBox2
             // 
@@ -163,6 +161,7 @@
             this.button1.TabIndex = 13;
             this.button1.Text = "...";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 

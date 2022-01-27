@@ -62,7 +62,9 @@ namespace WinFormsApp1
         private void button_From_File_Click(object sender, EventArgs e)
         {
             Mat from_file;
-            from_file = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a23.bmp");
+            // from_file = CvInvoke.Imread(@"C:\Users\zbign\OneDrive - Politechnika Łódzka\V SEMESTR\Studia\V SEMESTR\Systemy wizyjne\Laboratorium\PROJEKT_MOJEGO_ZYCIA\a23.bmp");
+            string path = textBox_Path.Text;
+            from_file = CvInvoke.Imread(path);
             CvInvoke.Resize(from_file, from_file, new Size(pictureBox1.Width, pictureBox1.Height));
             image1 = from_file.ToImage<Bgr, byte>();
             pictureBox1.Image = image1.AsBitmap();
@@ -83,6 +85,14 @@ namespace WinFormsApp1
 
             black_objects.Clear();
             listBox_Black_Chess_Notation.Items.Clear();
+
+            listBox1.Items.Clear();
+            checkerboard.Clear();
+            chessPiece.Clear();
+            chess_notation_list.Clear();
+            chessboardnotation.Clear();
+            counter = 0;
+            area = 0;
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -258,11 +268,11 @@ namespace WinFormsApp1
                     }
                     pictureBox1.Image = image4.AsBitmap();
                 }
-
             }
-
         }
-        
+
+
+        #region drawing methods
         private void draw_King_Movements(ChessBoard element, int move)
         {
             ChessBoard el;
@@ -504,7 +514,7 @@ namespace WinFormsApp1
                 }
             }
         }
-
+#endregion
         private void pictureBox2_Click(object sender, EventArgs e)
         {
         }
@@ -547,7 +557,7 @@ namespace WinFormsApp1
                         byte[,,] temp = blackobject.Data;
 
                         F = area;
-                        if (F > 200)
+                        if (F > 50)
                         {
                             string figure = "";
                             bool king = false;      //1
@@ -614,7 +624,7 @@ namespace WinFormsApp1
                         byte[,,] temp = whiteobject.Data;
                         F = area;
 
-                        if (F > 200)
+                        if (F > 50)
                         {
                             string figure = "";
                             bool king = false;      //1
@@ -683,25 +693,32 @@ namespace WinFormsApp1
                         whitefield = part_segmentation(new Point(xa, ya));
                         CvInvoke.Subtract(temp_image, whitefield, temp_image);
 
+
                         byte[,,] temp = whitefield.Data;
                         F = area;
                         bool isfig = false;
-                        if (F > 1200)
+
+                        decimal scale = 4000 / 78;
+                        decimal F_decimal = F;
+                        decimal rect_widht_decimnal = rectangle.Width;
+                        decimal a = F_decimal / rect_widht_decimnal;
+
+                        if (F > 150)
                         {
-                            if (F > 4000)
+                            if (a < scale)
                             {
-                                isfig = false;
+                                isfig = true;
                             }
                             else
                             {
-                                isfig = true;
+                                isfig = false;
                             }
 
                             ChessBoard board = new(chess_notation_list.ElementAt(temp_counter), F, isfig, true, rectangle, "", cols, rows);
                             chessboardnotation.Add(board);
                             temp_counter++;
 
-                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString() + " " + rectangle.Location);
+                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString() + " " + rectangle.Location + " " + rectangle.Width);
                             checkerboard.Add(whitefield);
 
                             rows--;
@@ -723,23 +740,28 @@ namespace WinFormsApp1
                         byte[,,] temp = blackfield.Data;
                         F = area;
                         bool isfig = false;
-                        if (F > 1200)
-                        {
-                            if (F > 4000)
-                            {
-                                isfig = false;
 
+                        decimal scale = 4000 / 78;
+                        decimal F_decimal = F;
+                        decimal rect_widht_decimnal = rectangle.Width;
+                        decimal a = F_decimal / rect_widht_decimnal;
+
+                        if (F > 150)
+                        {
+                            if (a < scale)
+                            {
+                                isfig = true;
                             }
                             else
                             {
-                                isfig = true;
+                                isfig = false;
                             }
 
                             ChessBoard board = new(chess_notation_list.ElementAt(temp_counter), F, isfig, false, rectangle, "", cols, rows);
                             chessboardnotation.Add(board);
                             temp_counter++;
 
-                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString() + " " + rectangle.Location);
+                            listBox1.Items.Add(board.field_name + "   F =" + F.ToString() + " " + rectangle.Location + " " + rectangle.Width);
                             checkerboard.Add(blackfield);
 
                             rows--;
@@ -973,6 +995,26 @@ namespace WinFormsApp1
             }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            textBox_Path.Text = get_image_path();
+        }
+
+        private string get_image_path()
+        {
+            string ret = "";
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "Obrazy|*.jpg;*.jpeg;*.png;*.bmp";
+            openFileDialog1.Title = "Wybierz obrazek.";
+            //Jeśli wszystko przebiegło ok to pobiera nazwę pliku
+            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                ret = openFileDialog1.FileName;
+            }
+
+            return ret;
+        }
+
         private void listBox1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             if (checkerboard.Count <= listBox1.SelectedIndex || listBox1.SelectedIndex < 0) return;
@@ -1063,6 +1105,4 @@ namespace WinFormsApp1
 
 
     }
-
-
 }
